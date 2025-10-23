@@ -1,0 +1,43 @@
+Key points for Vite:
+
+Port 5173: Vite's default dev server port
+--host flag: Required for the dev server to be accessible outside the container (otherwise it only binds to localhost inside the container)
+
+Important: Make sure your vite.config.js allows external access. If you have issues, add this to your config:
+export default {
+  server: {
+    host: true,
+    port: 5173
+  }
+}
+
+Then you can run it with:
+docker build -t my-react-app .
+docker run -p 5173:5173 my-react-app
+
+And access it at http://localhost:5173
+For development with hot-reloading, you might also want to add a volume mount:
+docker run -p 5173:5173 -v $(pwd):/app -v /app/node_modules my-react-app
+
+Production setup (multi-stage with nginx):
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+Creates optimized, minified static files
+Serves them with nginx (fast, efficient)
+No hot-reloading: You need to rebuild the Docker image every time you change code
+Better for testing "production-like" behavior
+
+For learning/education:
+
+If you're actively coding and want to see changes instantly → use dev server (single-stage)
+If you want to see how it works in production → use nginx (multi-stage)
