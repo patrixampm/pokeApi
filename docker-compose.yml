@@ -1,11 +1,41 @@
+# Dockerfile for dev only with hot-reload: run -> npm run dev
+# services:
+#   web:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5500:5173"
+#     volumes:
+#       - .:/app
+#       - /app/node_modules
+#     restart: on-failure
+
 services:
-  web:
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5500:5173"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    restart: on-failure
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
