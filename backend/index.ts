@@ -1,21 +1,21 @@
-import { config } from 'dotenv';
 import express, { Router } from 'express';
-import path from 'path';
-import url from 'url';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import passport from 'passport';
 import passportGoogle, { Profile, VerifyCallback } from 'passport-google-oauth20';
 import jwt from 'jsonwebtoken';
 
-// Load environment variables from backend/.env
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-config({ path: path.resolve(__dirname, '.env') });
-
 // Validate required environment variables
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   throw new Error('Missing required environment variables: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET');
+}
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('Missing required environment variable: JWT_SECRET');
+}
+
+if (!process.env.FRONTEND_URL || !process.env.CALLBACK_URL) {
+  throw new Error('Missing required environment variables: FRONTEND_URL and CALLBACK_URL');
 }
 
 // ===== User Storage (In-Memory) =====
@@ -54,11 +54,11 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: 'http://localhost:3000/api/callback',
+      callbackURL: process.env.CALLBACK_URL!,
     },
     async (
-      accessToken: string,
-      refreshToken: string,
+      _accessToken: string,
+      _refreshToken: string,
       profile: Profile,
       done: VerifyCallback
     ) => {
@@ -82,8 +82,9 @@ passport.use(
 );
 
 // ===== JWT Configuration =====
-const JWT_SECRET = 'MY_SECRET'; // TODO: Move to env variable
+const JWT_SECRET = process.env.JWT_SECRET!;
 const COOKIE_NAME = 'authorization';
+const TOKEN_EXPIRATION = '24h';
 
 interface TokenPayload {
   id: number;
@@ -91,7 +92,7 @@ interface TokenPayload {
 
 const createAccessToken = (userId: number): string => {
   const payload: TokenPayload = { id: userId };
-  return jwt.sign(payload, JWT_SECRET);
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRATION });
 };
 
 const getTokenPayload = async (token: string): Promise<TokenPayload | null> =>
@@ -115,21 +116,30 @@ api.get('/', async (req, res) => {
 // Pokemon generation endpoint
 api.post('/generate-pokemon', async (req, res) => {
   try {
-    const { name, animalTypes, abilities } = req.body;
+    const { name, description, animalTypes, abilities } = req.body;
     
     if (!name || !animalTypes || !abilities) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
     // Create prompt for image generation
-    const prompt = `A pokemon creature named ${name} that combines ${animalTypes.join(' and ')}, with ${abilities.join(', ')} powers, colorful, digital art, high quality, pokemon style, fantasy art`;
-    const negativePrompt = 'ugly, blurry, low quality, distorted, disfigured, bad anatomy';
+    let prompt = `A pokemon creature named ${name} that combines ${animalTypes.join(' and ')}, with ${abilities.join(', ')} powers`;
+    
+    // Add description if provided
+    if (description && description.trim()) {
+      prompt += `, ${description}`;
+    }
+    
+    prompt += 'colorful, digital art, high quality, pokemon style, fantasy art';
+    
+    const negativePrompt = 'blurry, low quality, distorted, disfigured, bad anatomy';
     
     console.log('Generating image for:', name);
     console.log('Prompt:', prompt);
     
     // Call Stable Diffusion API
-    const sdResponse = await fetch('http://stable-diffusion.42malaga.com:7860/sdapi/v1/txt2img', {
+    const sdApiUrl = process.env.STABLE_DIFFUSION_API_URL;
+    const sdResponse = await fetch(`${sdApiUrl}/sdapi/v1/txt2img`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -175,6 +185,7 @@ api.get(
   passport.authenticate('google', {
     scope: ['profile', 'email'],
     session: false,
+    prompt: 'select_account',
   })
 );
 
@@ -188,11 +199,13 @@ api.get(
     const token = createAccessToken(user.id);
     res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
-      secure: false, // TODO: Enable in production
+      secure: false,
       domain: 'localhost', // Share cookie across ports
+      path: '/',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
     });
-    // Redirect to frontend (port 8080)
-    res.redirect('http://localhost:8080');
+    // Redirect to frontend
+    res.redirect(process.env.FRONTEND_URL!);
   }
 );
 
@@ -218,12 +231,22 @@ api.get('/user-profile', async (req, res) => {
   res.status(200).send(user);
 });
 
+api.post('/logout', (req, res) => {
+  res.clearCookie(COOKIE_NAME, {
+    httpOnly: true,
+    secure: false,
+    domain: 'localhost',
+    path: '/'
+  });
+  res.status(200).send({ success: true, message: 'Logged out successfully' });
+});
+
 // ===== Express App Setup =====
 const app = express();
 
 // CORS configuration
 app.use(cors({
-  origin: 'http://localhost:8080',
+  origin: process.env.FRONTEND_URL!,
   credentials: true
 }));
 
@@ -231,12 +254,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
 
-const staticFilesPath = path.resolve(__dirname, './public');
-app.use('/', express.static(staticFilesPath));
-
 app.use('/api', api);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
   console.log(`Server ready at http://localhost:${PORT}/api`);

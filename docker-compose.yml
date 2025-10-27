@@ -30,9 +30,14 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - PORT=${PORT}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - SESSION_SECRET=${SESSION_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - CALLBACK_URL=${CALLBACK_URL}
+      - STABLE_DIFFUSION_API_URL=${STABLE_DIFFUSION_API_URL}
+      - POKEAPIKEY=${POKEAPIKEY}
     networks:
       - app-network
 

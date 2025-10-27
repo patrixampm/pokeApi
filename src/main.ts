@@ -1,5 +1,10 @@
+import i18next from './i18n';
 import './style.css';
 import { PokemonCreator } from './pokemon-creator';
+import { switchLanguage } from './utils/language';
+
+// API URL from environment variable
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Create Google OAuth SVG icon
 function createGoogleIcon(): SVGSVGElement {
@@ -35,15 +40,46 @@ function renderLandingPage() {
   
   // Create top section (red)
   const topSection = document.createElement('div');
-  topSection.className = 'flex-1 bg-red-600 flex flex-col items-center justify-center p-8';
+  topSection.className = 'flex-1 bg-red-600 flex flex-col items-center justify-center p-8 relative';
+  
+  // Language switcher (top left)
+  const langSwitcher = document.createElement('div');
+  langSwitcher.className = 'absolute top-4 left-4 flex gap-2';
+  langSwitcher.setAttribute('role', 'group');
+  langSwitcher.setAttribute('aria-label', 'Language selector');
+  
+  const languages = [
+    { code: 'en', label: 'EN' },
+    { code: 'es', label: 'ES' }
+  ];
+  
+  languages.forEach(lang => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'px-3 py-1 text-white border border-white/40 rounded-lg text-sm font-medium cursor-pointer transition-all backdrop-blur-sm focus-visible:outline focus-visible:outline-3 focus-visible:outline-white focus-visible:outline-offset-2';
+    btn.textContent = lang.label;
+    btn.setAttribute('aria-label', `Switch to ${lang.label === 'EN' ? 'English' : 'Spanish'}`);
+    
+    // Highlight current language
+    if (i18next.language.startsWith(lang.code)) {
+      btn.className += ' bg-white/30';
+    } else {
+      btn.className += ' bg-white/10 hover:bg-white/20';
+    }
+    
+    btn.addEventListener('click', () => switchLanguage(lang.code, renderLandingPage));
+    langSwitcher.appendChild(btn);
+  });
+  
+  topSection.appendChild(langSwitcher);
   
   const title = document.createElement('h1');
   title.className = 'text-5xl font-bold text-center mb-4 bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(255,215,0,0.4)]';
-  title.textContent = 'Welcome to pokeAPI';
+  title.textContent = i18next.t('landing.title');
   
   const subtitle = document.createElement('p');
   subtitle.className = 'text-xl text-white text-center';
-  subtitle.textContent = 'Create a new Pokémon!';
+  subtitle.textContent = i18next.t('landing.subtitle');
   
   topSection.appendChild(title);
   topSection.appendChild(subtitle);
@@ -53,12 +89,12 @@ function renderLandingPage() {
   middleSection.className = 'bg-black flex items-center justify-center py-8 px-4';
   
   const googleButton = document.createElement('a');
-  googleButton.href = 'http://localhost:3000/api/google';
+  googleButton.href = `${API_URL}/google`;
   googleButton.className = 'inline-flex items-center justify-center gap-3 bg-white text-gray-700 border-2 border-gray-300 px-6 py-3.5 rounded-lg font-medium transition-all duration-200 hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(66,133,244,0.2)] active:translate-y-0 focus-visible:outline focus-visible:outline-3 focus-visible:outline-blue-500 focus-visible:outline-offset-2 no-underline cursor-pointer';
   
   const googleIcon = createGoogleIcon();
   const buttonText = document.createElement('span');
-  buttonText.textContent = 'Continue with Google';
+  buttonText.textContent = i18next.t('landing.googleButton');
   
   googleButton.appendChild(googleIcon);
   googleButton.appendChild(buttonText);
@@ -71,7 +107,7 @@ function renderLandingPage() {
   
   const footerText = document.createElement('p');
   footerText.className = 'text-sm text-gray-400 text-center';
-  footerText.textContent = 'Sign in to get started';
+  footerText.textContent = i18next.t('landing.footer');
   
   bottomSection.appendChild(footerText);
   
@@ -93,7 +129,7 @@ function renderPokemonCreator() {
 // Check if user is authenticated
 async function checkAuth(): Promise<boolean> {
   try {
-    const response = await fetch('http://localhost:3000/api/user-profile', {
+    const response = await fetch(`${API_URL}/user-profile`, {
       credentials: 'include'
     });
     return response.ok;
@@ -115,5 +151,3 @@ async function init() {
 
 // Start the app
 init();
-
-// TODO: Create a prompt box to add more things to the pokemon. Add share button. Add multiple image creation. Clean everything up. Understand every last bit!

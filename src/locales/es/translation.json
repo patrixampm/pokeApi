@@ -1,0 +1,58 @@
+{
+  "landing": {
+    "title": "Bienvenido a pokeAPI",
+    "subtitle": "¡Crea un nuevo Pokémon!",
+    "googleButton": "Continuar con Google",
+    "footer": "Inicia sesión para comenzar"
+  },
+  "header": {
+    "title": "Crea Tu Pokémon",
+    "subtitle": "¡Mezcla animales y habilidades para generar criaturas únicas!",
+    "logout": "Cerrar Sesión"
+  },
+  "form": {
+    "heading": "Diseña Tu Pokémon",
+    "name": "Nombre del Pokémon",
+    "namePlaceholder": "Ingresa un nombre genial...",
+    "description": "Descripción (opcional)",
+    "descriptionPlaceholder": "Describe tu Pokémon... (ej., \"tiene grandes alas y ojos brillantes\")",
+    "animalTypes": "Tipos de Animales (selecciona hasta {{max}})",
+    "abilities": "Habilidades (selecciona hasta {{max}})",
+    "generate": "Generar Pokémon",
+    "generating": "Generando..."
+  },
+  "validation": {
+    "nameRequired": "Por favor ingresa un nombre para tu Pokémon",
+    "selectAnimalType": "Por favor selecciona al menos un tipo de animal",
+    "selectAbility": "Por favor selecciona al menos una habilidad",
+    "maxAnimals": "Máximo {{max}} tipos de animales permitidos",
+    "maxAbilities": "Máximo {{max}} habilidades permitidas"
+  },
+  "gallery": {
+    "heading": "Tu Pokémon",
+    "empty": "Aún no has creado ningún Pokémon. ¡Comienza a diseñar arriba!",
+    "types": "Tipos",
+    "abilities": "Habilidades",
+    "download": "Descargar",
+    "copyLink": "Copiar Enlace",
+    "imageAlt": "Imagen generada de {{name}}, un Pokémon que combina {{types}}"
+  },
+  "messages": {
+    "created": "¡{{name}} ha sido creado!",
+    "downloaded": "¡Imagen de {{name}} descargada!",
+    "linkCopied": "¡Enlace de imagen copiado al portapapeles!",
+    "downloadFailed": "Error al descargar imagen",
+    "copyFailed": "Error al copiar enlace",
+    "generationFailed": "Error al generar Pokémon. Por favor intenta de nuevo.",
+    "logoutFailed": "Error al cerrar sesión. Por favor intenta de nuevo."
+  },
+  "aria": {
+    "main": "Aplicación Creador de Pokémon",
+    "skipLink": "Saltar al contenido principal",
+    "logoutButton": "Cerrar sesión de la aplicación",
+    "generateButton": "Genera tu Pokémon personalizado",
+    "pokemonCard": "Tarjeta de Pokémon {{name}}",
+    "downloadButton": "Descargar imagen de {{name}}",
+    "copyButton": "Copiar enlace a {{name}}"
+  }
+}

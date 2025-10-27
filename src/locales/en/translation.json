@@ -1,0 +1,58 @@
+{
+  "landing": {
+    "title": "Welcome to pokeAPI",
+    "subtitle": "Create a new Pokémon!",
+    "googleButton": "Continue with Google",
+    "footer": "Sign in to get started"
+  },
+  "header": {
+    "title": "Create Your Pokémon",
+    "subtitle": "Mix animals and abilities to generate your unique creation!",
+    "logout": "Logout"
+  },
+  "form": {
+    "heading": "Design Your Pokémon",
+    "name": "Pokémon Name",
+    "namePlaceholder": "Enter a cool name...",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "Describe your Pokémon... (e.g., \"has large wings and glowing eyes\")",
+    "animalTypes": "Animal Types (select up to {{max}})",
+    "abilities": "Abilities (select up to {{max}})",
+    "generate": "Generate Pokémon",
+    "generating": "Generating..."
+  },
+  "validation": {
+    "nameRequired": "Please enter a name for your Pokémon",
+    "selectAnimalType": "Please select at least one animal type",
+    "selectAbility": "Please select at least one ability",
+    "maxAnimals": "Maximum {{max}} animal types allowed",
+    "maxAbilities": "Maximum {{max}} abilities allowed"
+  },
+  "gallery": {
+    "heading": "Your Pokémon",
+    "empty": "No Pokémon created yet. Start designing above!",
+    "types": "Types",
+    "abilities": "Abilities",
+    "download": "Download",
+    "copyLink": "Copy Link",
+    "imageAlt": "Generated image of {{name}}, a Pokémon combining {{types}}"
+  },
+  "messages": {
+    "created": "{{name}} has been created!",
+    "downloaded": "{{name}} image downloaded!",
+    "linkCopied": "Image link copied to clipboard!",
+    "downloadFailed": "Failed to download image",
+    "copyFailed": "Failed to copy link",
+    "generationFailed": "Failed to generate Pokémon. Please try again.",
+    "logoutFailed": "Failed to logout. Please try again."
+  },
+  "aria": {
+    "main": "Pokemon Creator Application",
+    "skipLink": "Skip to main content",
+    "logoutButton": "Logout from application",
+    "generateButton": "Generate your custom Pokémon",
+    "pokemonCard": "{{name}} Pokémon card",
+    "downloadButton": "Download image of {{name}}",
+    "copyButton": "Copy link to {{name}}"
+  }
+}
